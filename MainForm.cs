@@ -1,17 +1,11 @@
 ﻿using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using static MetadataExtractor.Formats.Exif.Makernotes.CanonMakernoteDirectory;
 
 namespace ExifStat
 {
@@ -74,7 +68,7 @@ namespace ExifStat
                     }
                 });
 
-                LoadingLabel.Visible = false;
+                BarChart.Titles[0].Text = this.Text;
                 DataPoint[] dp = Enumerable.Range(0, 7).Select(i => new DataPoint()).ToArray();
                 dp[0].SetValueXY("<=18mm", count_18);
                 dp[1].SetValueXY("28-35mm", count_28_35);
