@@ -11,7 +11,7 @@ namespace ExifStat
 {
     public partial class MainForm : Form
     {
-        public static string FOCAL_LENGTH = "Focal Length";
+        public static string FOCAL_LENGTH = "Focal Length 35";
 
         public MainForm() {
             InitializeComponent();
@@ -35,8 +35,14 @@ namespace ExifStat
             if (dialog.ShowDialog() == DialogResult.OK) {
                 await Task.Run(() => {
                     foreach (var file in dialog.FileNames) {
-                        var directories = ImageMetadataReader.ReadMetadata(file);
-                        int f = GetFocalLength(directories);
+                        double f = 0;
+                        try {
+                            var directories = ImageMetadataReader.ReadMetadata(file);
+                            f = GetFocalLength(directories);
+                        } catch (Exception) {
+                            continue;
+                        }
+
                         if (f > 0) {
                             Console.WriteLine($"{file} {f}");
                             if (f <= 18) {
@@ -94,12 +100,13 @@ namespace ExifStat
             }
         }
 
-        public int GetFocalLength(IReadOnlyList<Directory> directories) {
+        public double GetFocalLength(IReadOnlyList<Directory> directories) {
             foreach (Directory directory in directories) {
                 foreach (Tag tag in directory.Tags) {
+                    // Console.WriteLine(tag.Name + "-" + tag.Description);
                     if (FOCAL_LENGTH == tag.Name) {
                         string text = tag.Description;
-                        int f = int.Parse(text.Substring(0, text.Length - 3));
+                        double f = double.Parse(text.Substring(0, text.Length - 3));
                         return f;
                     }
                 }
