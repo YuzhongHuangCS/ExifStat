@@ -11,7 +11,10 @@ namespace ExifStat
 {
     public partial class MainForm : Form
     {
-        public static string FOCAL_LENGTH = "Focal Length 35";
+        public static string FOCAL_LENGTH = "Focal Length";
+        public static string FOCAL_LENGTH_35 = "Focal Length 35";
+        public static string CAMERA_MODEL = "Model";
+        public static HashSet<string> APSC_MODEL = new HashSet<string> { "NIKON D3400", "X-S10" };
 
         public MainForm() {
             InitializeComponent();
@@ -76,6 +79,8 @@ namespace ExifStat
 
                 BarChart.Titles[0].Text = this.Text;
                 double total = (count_18 + count_28_35 + count_35_50 + count_50_75 + count_75_100 + count_100_150 + count_150_200) / 100.0;
+                total = Math.Max(total, 1);
+
                 DataPoint[] dp = Enumerable.Range(0, 7).Select(i => new DataPoint()).ToArray();
                 dp[0].SetValueXY("<=18mm", count_18);
                 dp[0].Label = string.Format("{0:0.00}%", count_18 / total);
@@ -101,12 +106,29 @@ namespace ExifStat
         }
 
         public double GetFocalLength(IReadOnlyList<Directory> directories) {
+            bool apsc = false;
             foreach (Directory directory in directories) {
                 foreach (Tag tag in directory.Tags) {
-                    // Console.WriteLine(tag.Name + "-" + tag.Description);
+                    // Console.WriteLine($"{tag.Name} - {tag.Description}");
+                    if (FOCAL_LENGTH_35 == tag.Name) {
+                        string text = tag.Description;
+                        double f = double.Parse(text.Substring(0, text.Length - 3));
+                        return f;
+                    }
+                    if (CAMERA_MODEL == tag.Name && APSC_MODEL.Contains(tag.Description)) {
+                        apsc = true;
+                    }
+                }
+            }
+
+            foreach (Directory directory in directories) {
+                foreach (Tag tag in directory.Tags) {
                     if (FOCAL_LENGTH == tag.Name) {
                         string text = tag.Description;
                         double f = double.Parse(text.Substring(0, text.Length - 3));
+                        if (apsc) {
+                            f *= 1.5;
+                        }
                         return f;
                     }
                 }
