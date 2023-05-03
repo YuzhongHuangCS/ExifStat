@@ -50,6 +50,7 @@
             this.BarChart.Margin = new System.Windows.Forms.Padding(0);
             this.BarChart.Name = "BarChart";
             series1.ChartArea = "ChartArea1";
+            series1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             series1.Name = "Series1";
             series1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.BrightPastel;
             series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
