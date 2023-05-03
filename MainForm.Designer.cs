@@ -29,6 +29,7 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.BarChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.LoadingLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.BarChart)).BeginInit();
             this.SuspendLayout();
             // 
@@ -46,7 +47,7 @@
             this.BarChart.ChartAreas.Add(chartArea1);
             this.BarChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.BarChart.Location = new System.Drawing.Point(0, 0);
-            this.BarChart.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
+            this.BarChart.Margin = new System.Windows.Forms.Padding(0);
             this.BarChart.Name = "BarChart";
             series1.ChartArea = "ChartArea1";
             series1.Name = "Series1";
@@ -60,11 +61,21 @@
             title1.Text = "Focal Length Summary";
             this.BarChart.Titles.Add(title1);
             // 
+            // LoadingLabel
+            // 
+            this.LoadingLabel.AutoSize = true;
+            this.LoadingLabel.Location = new System.Drawing.Point(470, 350);
+            this.LoadingLabel.Name = "LoadingLabel";
+            this.LoadingLabel.Size = new System.Drawing.Size(83, 28);
+            this.LoadingLabel.TabIndex = 1;
+            this.LoadingLabel.Text = "Loading";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(982, 703);
+            this.Controls.Add(this.LoadingLabel);
             this.Controls.Add(this.BarChart);
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -72,12 +83,14 @@
             this.Text = "Focal Length Summary";
             ((System.ComponentModel.ISupportInitialize)(this.BarChart)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.DataVisualization.Charting.Chart BarChart;
+        private System.Windows.Forms.Label LoadingLabel;
     }
 }
 

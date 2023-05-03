@@ -21,7 +21,10 @@ namespace ExifStat
 
         public MainForm() {
             InitializeComponent();
+            this.Load += new EventHandler(Form_Load);
+        }
 
+        private async void Form_Load(object sender, EventArgs e) {
             OpenFileDialog dialog = new OpenFileDialog {
                 Multiselect = true,
                 Title = "Select Photos to Analysis"
@@ -36,30 +39,32 @@ namespace ExifStat
             int count_150_200 = 0;
 
             if (dialog.ShowDialog() == DialogResult.OK) {
-                foreach (var file in dialog.FileNames) {
-                    var directories = ImageMetadataReader.ReadMetadata(file);
-                    int f = GetFocalLength(directories);
-                    if (f > 0) {
-                        Console.WriteLine($"{file} {f}");
-                        if (f <= 18) {
-                            count_18 += 1;
-                        } else {
-                            if (f <= 35) {
-                                count_28_35 += 1;
+                await Task.Run(() => {
+                    foreach (var file in dialog.FileNames) {
+                        var directories = ImageMetadataReader.ReadMetadata(file);
+                        int f = GetFocalLength(directories);
+                        if (f > 0) {
+                            Console.WriteLine($"{file} {f}");
+                            if (f <= 18) {
+                                count_18 += 1;
                             } else {
-                                if (f <= 50) {
-                                    count_35_50 += 1;
+                                if (f <= 35) {
+                                    count_28_35 += 1;
                                 } else {
-                                    if (f <= 75) {
-                                        count_50_75 += 1;
+                                    if (f <= 50) {
+                                        count_35_50 += 1;
                                     } else {
-                                        if (f <= 100) {
-                                            count_75_100 += 1;
+                                        if (f <= 75) {
+                                            count_50_75 += 1;
                                         } else {
-                                            if (f <= 150) {
-                                                count_100_150 += 1;
+                                            if (f <= 100) {
+                                                count_75_100 += 1;
                                             } else {
-                                                count_150_200 += 1;
+                                                if (f <= 150) {
+                                                    count_100_150 += 1;
+                                                } else {
+                                                    count_150_200 += 1;
+                                                }
                                             }
                                         }
                                     }
@@ -67,12 +72,10 @@ namespace ExifStat
                             }
                         }
                     }
-                }
-                // Add series.
-                DataPoint[] dp = new DataPoint[7];
-                for (int i = 0; i < 7; i++) {
-                    dp[i] = new DataPoint();
-                }
+                });
+
+                LoadingLabel.Visible = false;
+                DataPoint[] dp = Enumerable.Range(0, 7).Select(i => new DataPoint()).ToArray();
                 dp[0].SetValueXY("<=18mm", count_18);
                 dp[1].SetValueXY("28-35mm", count_28_35);
                 dp[2].SetValueXY("35-50mm", count_35_50);
@@ -84,6 +87,8 @@ namespace ExifStat
                 foreach (var p in dp) {
                     BarChart.Series[0].Points.Add(p);
                 }
+            } else {
+                Application.Exit();
             }
         }
 
