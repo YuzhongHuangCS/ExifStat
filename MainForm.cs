@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,6 +21,7 @@ namespace ExifStat
         public MainForm() {
             InitializeComponent();
             this.Load += new EventHandler(Form_Load);
+            this.KeyDown += new KeyEventHandler(Form_KeyDown);
         }
 
         private async void Form_Load(object sender, EventArgs e) {
@@ -102,6 +105,49 @@ namespace ExifStat
                 }
             } else {
                 Application.Exit();
+            }
+        }
+
+        private void Form_KeyDown(object sender, KeyEventArgs e) {
+            if (e.Control && e.KeyCode == Keys.S) {      // Ctrl-S Save
+                // Stops other controls on the form receiving event.
+                e.SuppressKeyPress = true;
+
+                // Do what you want here
+                SaveFileDialog dialog = new SaveFileDialog {
+                    Filter = "PNG Image (1x)|*.png|PNG Image (2x)|*.png|PNG Image (4x)|*.png|EMF Image|*.emf"
+                };
+                if (dialog.ShowDialog() == DialogResult.OK) {
+                    switch (dialog.FilterIndex) {
+                        case 1:
+                            BarChart.SaveImage(dialog.FileName, ChartImageFormat.Png);
+                            break;
+
+                        case 2:
+                        case 3:
+                            System.IO.MemoryStream buffer = new System.IO.MemoryStream();
+                            BarChart.SaveImage(buffer, ChartImageFormat.EmfPlus);
+                            buffer.Position = 0;
+
+                            using (Metafile emf = new Metafile(buffer)) {
+                                MetafileHeader emf_header = emf.GetMetafileHeader();
+                                int scale = 2 * (dialog.FilterIndex-1);
+                                Console.WriteLine(BarChart);
+                                using (Bitmap bitmap = new Bitmap(emf.Width * scale, emf.Height * scale)) {
+                                    using (Graphics g = Graphics.FromImage(bitmap)) {
+                                        g.ScaleTransform(scale * emf_header.DpiX / g.DpiX, scale * emf_header.DpiY / g.DpiY);
+                                        g.DrawImage(emf, 0, 0);
+                                    }
+                                    bitmap.Save(dialog.FileName, ImageFormat.Png);
+                                }
+                            }
+                            break;
+
+                        case 4:
+                            BarChart.SaveImage(dialog.FileName, ChartImageFormat.EmfPlus);
+                            break;
+                    }
+                }
             }
         }
 
