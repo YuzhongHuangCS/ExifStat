@@ -36,6 +36,9 @@
     <ApplicationIcon>logo.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Aspose.Imaging, Version=23.4.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
+      <HintPath>packages\Aspose.Imaging.23.4.0\lib\net40\Aspose.Imaging.dll</HintPath>
+    </Reference>
     <Reference Include="MetadataExtractor, Version=2.7.3.0, Culture=neutral, PublicKeyToken=b66b5ccaf776c301, processorArchitecture=MSIL">
       <HintPath>packages\MetadataExtractor.2.7.3\lib\net45\MetadataExtractor.dll</HintPath>
     </Reference>

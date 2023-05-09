@@ -1,5 +1,4 @@
-﻿using MetadataExtractor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -8,6 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using MetadataExtractor;
+using Aspose.Imaging.ImageOptions;
 
 namespace ExifStat
 {
@@ -115,35 +116,45 @@ namespace ExifStat
 
                 // Do what you want here
                 SaveFileDialog dialog = new SaveFileDialog {
-                    Filter = "PNG Image (1x)|*.png|PNG Image (2x)|*.png|PNG Image (4x)|*.png|EMF Image|*.emf"
+                    Filter = "PDF Document|*.pdf|PNG Image (4x)|*.png|PNG Image (2x)|*.png|PNG Image (1x)|*.png|EMF Vector|*.emf"
                 };
                 if (dialog.ShowDialog() == DialogResult.OK) {
                     switch (dialog.FilterIndex) {
                         case 1:
-                            BarChart.SaveImage(dialog.FileName, ChartImageFormat.Png);
-                            break;
-
                         case 2:
                         case 3:
                             System.IO.MemoryStream buffer = new System.IO.MemoryStream();
                             BarChart.SaveImage(buffer, ChartImageFormat.EmfPlus);
                             buffer.Position = 0;
 
-                            using (Metafile emf = new Metafile(buffer)) {
-                                MetafileHeader emf_header = emf.GetMetafileHeader();
-                                int scale = 2 * (dialog.FilterIndex-1);
-                                Console.WriteLine(BarChart);
-                                using (Bitmap bitmap = new Bitmap(emf.Width * scale, emf.Height * scale)) {
-                                    using (Graphics g = Graphics.FromImage(bitmap)) {
-                                        g.ScaleTransform(scale * emf_header.DpiX / g.DpiX, scale * emf_header.DpiY / g.DpiY);
-                                        g.DrawImage(emf, 0, 0);
+                            if (dialog.FilterIndex == 1) {
+                                var emf = Aspose.Imaging.Image.Load(buffer);
+                                var options = new EmfRasterizationOptions {
+                                    PageWidth = emf.Width,
+                                    PageHeight = emf.Height
+                                };
+
+                                emf.Save(dialog.FileName, new PdfOptions() { VectorRasterizationOptions = options });
+                            } else {
+                                using (Metafile emf = new Metafile(buffer)) {
+                                    MetafileHeader emf_header = emf.GetMetafileHeader();
+                                    int scale = 2 * (4 - dialog.FilterIndex);
+                                    using (Bitmap bitmap = new Bitmap(emf.Width * scale, emf.Height * scale)) {
+                                        using (Graphics g = Graphics.FromImage(bitmap)) {
+                                            g.ScaleTransform(scale * emf_header.DpiX / g.DpiX, scale * emf_header.DpiY / g.DpiY);
+                                            g.DrawImage(emf, 0, 0);
+                                        }
+                                        bitmap.Save(dialog.FileName, ImageFormat.Png);
                                     }
-                                    bitmap.Save(dialog.FileName, ImageFormat.Png);
                                 }
                             }
                             break;
 
                         case 4:
+                            BarChart.SaveImage(dialog.FileName, ChartImageFormat.Png);
+                            break;
+
+                        case 5:
                             BarChart.SaveImage(dialog.FileName, ChartImageFormat.EmfPlus);
                             break;
                     }
